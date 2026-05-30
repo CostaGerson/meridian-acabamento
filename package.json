@@ -1,0 +1,12 @@
+{
+  "name": "meridian-acabamento",
+  "version": "1.0.0",
+  "description": "App de operacao da linha de acabamento Meridian: registro de producao + calculadora de dimensionamento.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2"
+  }
+}

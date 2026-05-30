@@ -1,0 +1,12 @@
+services:
+  app:
+    build: .
+    container_name: meridian-acabamento
+    restart: unless-stopped
+    ports:
+      - "8090:8080"
+    environment:
+      - PORT=8080
+      - DATA_DIR=/data
+    volumes:
+      - ./data:/data
