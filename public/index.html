@@ -58,6 +58,8 @@ select{appearance:none}
 .row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .row>*{min-width:0}
 label.f{min-width:0}
+input[type="date"],input[type="time"]{-webkit-appearance:none;appearance:none}
+@media (max-width:520px){.row{grid-template-columns:1fr}}
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px 18px;border-radius:10px;
   font-weight:700;font-size:14px;letter-spacing:.02em;cursor:pointer;font-family:Archivo,sans-serif;border:none;transition:transform .12s}
 .btn:active{transform:scale(.97)}

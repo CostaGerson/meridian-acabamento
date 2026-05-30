@@ -111,7 +111,13 @@ app.post("/api/change-pin", requirePin, async (req, res) => {
 });
 
 // ---------- frontend ----------
-app.use(express.static(path.join(__dirname, "public")));
-app.get("*", (req, res) => res.sendFile(path.join(__dirname, "public", "index.html")));
+app.use(express.static(path.join(__dirname, "public"), {
+  index: false,
+  setHeaders: (res, p) => { if (p.endsWith(".html")) res.setHeader("Cache-Control", "no-store"); }
+}));
+app.get("*", (req, res) => {
+  res.setHeader("Cache-Control", "no-store");
+  res.sendFile(path.join(__dirname, "public", "index.html"));
+});
 
 app.listen(PORT, () => console.log("Meridian Acabamento rodando na porta " + PORT));
