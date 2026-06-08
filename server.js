@@ -12,10 +12,21 @@ const SEED_FILE = path.join(__dirname, "seed.json");
 // ---------- carga / persistencia ----------
 function ensureData() {
   if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
+  const seed = JSON.parse(fs.readFileSync(SEED_FILE, "utf8"));
   if (!fs.existsSync(DATA_FILE)) {
-    const seed = JSON.parse(fs.readFileSync(SEED_FILE, "utf8"));
     fs.writeFileSync(DATA_FILE, JSON.stringify(seed, null, 2));
     console.log("data.json criado a partir do seed.");
+    return;
+  }
+  // migracao: garante as chaves novas em bases ja existentes (preserva pin/products/records)
+  const d = JSON.parse(fs.readFileSync(DATA_FILE, "utf8"));
+  let changed = false;
+  for (const k of ["freelancers", "payments", "weeks"]) {
+    if (d[k] === undefined) { d[k] = seed[k]; changed = true; }
+  }
+  if (changed) {
+    fs.writeFileSync(DATA_FILE, JSON.stringify(d, null, 2));
+    console.log("data.json migrado: chaves de gestao adicionadas.");
   }
 }
 function readData() {
@@ -107,6 +118,27 @@ app.post("/api/change-pin", requirePin, async (req, res) => {
   const np = (req.body && req.body.pin || "").trim();
   if (!np) return res.status(400).json({ error: "senha vazia" });
   await writeData((d) => { d.pin = np; });
+  res.json({ ok: true });
+});
+
+// ---------- gestao de freelancers (protegido) ----------
+app.get("/api/gestao", requirePin, (req, res) => {
+  const d = readData();
+  res.json({ freelancers: d.freelancers || [], payments: d.payments || [], weeks: d.weeks || {} });
+});
+app.put("/api/freelancers", requirePin, async (req, res) => {
+  const list = Array.isArray(req.body) ? req.body : [];
+  await writeData((d) => { d.freelancers = list; });
+  res.json({ ok: true });
+});
+app.put("/api/payments", requirePin, async (req, res) => {
+  const list = Array.isArray(req.body) ? req.body : [];
+  await writeData((d) => { d.payments = list; });
+  res.json({ ok: true });
+});
+app.put("/api/weeks", requirePin, async (req, res) => {
+  const obj = (req.body && typeof req.body === "object") ? req.body : {};
+  await writeData((d) => { d.weeks = obj; });
   res.json({ ok: true });
 });
 

@@ -337,5 +337,1033 @@
       "etapas": 2,
       "obs": ""
     }
-  ]
+  ],
+  "freelancers": [
+    {
+      "id": "f1",
+      "nome": "SILVANIA",
+      "funcao": "ARREMATE",
+      "diaria": 100,
+      "passagem": 22.5,
+      "whatsapp": "",
+      "pix": ""
+    },
+    {
+      "id": "f2",
+      "nome": "AYNARA",
+      "funcao": "ARREMATE",
+      "diaria": 100,
+      "passagem": 12.5,
+      "whatsapp": "",
+      "pix": ""
+    },
+    {
+      "id": "f3",
+      "nome": "EDILENE",
+      "funcao": "ARREMATE",
+      "diaria": 100,
+      "passagem": 20,
+      "whatsapp": "",
+      "pix": ""
+    },
+    {
+      "id": "f4",
+      "nome": "TATIANA",
+      "funcao": "ARREMATE",
+      "diaria": 100,
+      "passagem": 25,
+      "whatsapp": "",
+      "pix": ""
+    },
+    {
+      "id": "f5",
+      "nome": "LARISSA",
+      "funcao": "ARREMATE",
+      "diaria": 100,
+      "passagem": 25,
+      "whatsapp": "",
+      "pix": ""
+    },
+    {
+      "id": "f6",
+      "nome": "SIMONE",
+      "funcao": "ARREMATE",
+      "diaria": 100,
+      "passagem": 12.5,
+      "whatsapp": "",
+      "pix": ""
+    },
+    {
+      "id": "f7",
+      "nome": "LILIA",
+      "funcao": "ARREMATE",
+      "diaria": 100,
+      "passagem": 17.2,
+      "whatsapp": "",
+      "pix": ""
+    },
+    {
+      "id": "f8",
+      "nome": "JOSUE (DIA)",
+      "funcao": "CORTE",
+      "diaria": 200,
+      "passagem": 0,
+      "whatsapp": "",
+      "pix": ""
+    },
+    {
+      "id": "f9",
+      "nome": "JOSUE (NOITE)",
+      "funcao": "CORTE",
+      "diaria": 150,
+      "passagem": 0,
+      "whatsapp": "",
+      "pix": ""
+    },
+    {
+      "id": "f10",
+      "nome": "HIGLEY (DIA)",
+      "funcao": "CORTE",
+      "diaria": 150,
+      "passagem": 0,
+      "whatsapp": "",
+      "pix": ""
+    },
+    {
+      "id": "f11",
+      "nome": "HIGLEY (NOITE)",
+      "funcao": "CORTE",
+      "diaria": 150,
+      "passagem": 0,
+      "whatsapp": "",
+      "pix": ""
+    },
+    {
+      "id": "f12",
+      "nome": "ANA PAULA",
+      "funcao": "ARREMATE",
+      "diaria": 100,
+      "passagem": 16.4,
+      "whatsapp": "",
+      "pix": ""
+    },
+    {
+      "id": "f13",
+      "nome": "JANAINA",
+      "funcao": "CASEADEIRA",
+      "diaria": 130,
+      "passagem": 12.5,
+      "whatsapp": "",
+      "pix": ""
+    },
+    {
+      "id": "f14",
+      "nome": "YASMIN",
+      "funcao": "ARREMATE",
+      "diaria": 100,
+      "passagem": 27.1,
+      "whatsapp": "",
+      "pix": ""
+    },
+    {
+      "id": "f15",
+      "nome": "LUCAS (DIA)",
+      "funcao": "CORTADOR",
+      "diaria": 200,
+      "passagem": 0,
+      "whatsapp": "",
+      "pix": ""
+    },
+    {
+      "id": "f16",
+      "nome": "LUCAS (NOITE)",
+      "funcao": "CORTADOR",
+      "diaria": 140,
+      "passagem": 0,
+      "whatsapp": "",
+      "pix": ""
+    },
+    {
+      "id": "f17",
+      "nome": "MARIA EDUARDA",
+      "funcao": "ARREMATE",
+      "diaria": 100,
+      "passagem": 12.5,
+      "whatsapp": "",
+      "pix": ""
+    },
+    {
+      "id": "f18",
+      "nome": "DAVID",
+      "funcao": "AUX CORTE",
+      "diaria": 100,
+      "passagem": 12.5,
+      "whatsapp": "",
+      "pix": ""
+    },
+    {
+      "id": "f19",
+      "nome": "ARTULAINE",
+      "funcao": "ARREMATE",
+      "diaria": 100,
+      "passagem": 21.1,
+      "whatsapp": "",
+      "pix": ""
+    },
+    {
+      "id": "f20",
+      "nome": "ADRIELLY",
+      "funcao": "ARREMATE",
+      "diaria": 100,
+      "passagem": 17.2,
+      "whatsapp": "",
+      "pix": ""
+    },
+    {
+      "id": "f21",
+      "nome": "RAYANE",
+      "funcao": "ARREMATE",
+      "diaria": 100,
+      "passagem": 17.9,
+      "whatsapp": "31991292864",
+      "pix": ""
+    },
+    {
+      "id": "f22",
+      "nome": "DOUGLAS",
+      "funcao": "CORTE",
+      "diaria": 150,
+      "passagem": 0,
+      "whatsapp": "",
+      "pix": ""
+    },
+    {
+      "id": "f23",
+      "nome": "CRISTIANO",
+      "funcao": "COSTURA",
+      "diaria": 130,
+      "passagem": 12.5,
+      "whatsapp": "",
+      "pix": ""
+    },
+    {
+      "id": "f24",
+      "nome": "TELMA",
+      "funcao": "COSTURA",
+      "diaria": 130,
+      "passagem": 12.5,
+      "whatsapp": "",
+      "pix": ""
+    },
+    {
+      "id": "f25",
+      "nome": "SABRINA",
+      "funcao": "ARREMATE",
+      "diaria": 100,
+      "passagem": 12.5,
+      "whatsapp": "",
+      "pix": ""
+    },
+    {
+      "id": "f26",
+      "nome": "CARLOS",
+      "funcao": "MOTORISTA",
+      "diaria": 110,
+      "passagem": 12.5,
+      "whatsapp": "",
+      "pix": ""
+    },
+    {
+      "id": "f27",
+      "nome": "BRUNA",
+      "funcao": "COSTURA",
+      "diaria": 100,
+      "passagem": 30,
+      "whatsapp": "",
+      "pix": ""
+    },
+    {
+      "id": "f28",
+      "nome": "TONY",
+      "funcao": "MOTORISTA",
+      "diaria": 140,
+      "passagem": 0,
+      "whatsapp": "",
+      "pix": ""
+    }
+  ],
+  "payments": [
+    {
+      "id": "pdf_2025-03-14_a",
+      "weekStart": "2025-03-14",
+      "weekEnd": "2025-03-14",
+      "ano": 2025,
+      "closedAt": "2025-03-14T12:00:00.000Z",
+      "total": 200,
+      "items": [
+        {
+          "nome": "REF DIÁRIA CORTADOR",
+          "funcao": "CORTE",
+          "valor": 200,
+          "dias": null,
+          "valorDia": null
+        }
+      ],
+      "fonte": "importado"
+    },
+    {
+      "id": "pdf_2025-03-14_b",
+      "weekStart": "2025-03-14",
+      "weekEnd": "2025-03-14",
+      "ano": 2025,
+      "closedAt": "2025-03-14T12:00:00.000Z",
+      "total": 565,
+      "items": [
+        {
+          "nome": "JOSUE",
+          "funcao": "CORTE",
+          "valor": 200,
+          "dias": null,
+          "valorDia": null
+        },
+        {
+          "nome": "LILIA",
+          "funcao": "ARREMATE",
+          "valor": 365,
+          "dias": null,
+          "valorDia": null
+        }
+      ],
+      "fonte": "importado"
+    },
+    {
+      "id": "pdf_2025-03-26_c",
+      "weekStart": "2025-03-26",
+      "weekEnd": "2025-03-26",
+      "ano": 2025,
+      "closedAt": "2025-03-26T12:00:00.000Z",
+      "total": 200,
+      "items": [
+        {
+          "nome": "JOSUE",
+          "funcao": "CORTE",
+          "valor": 200,
+          "dias": null,
+          "valorDia": null
+        }
+      ],
+      "fonte": "importado"
+    },
+    {
+      "id": "pdf_2025-03-28_d",
+      "weekStart": "2025-03-28",
+      "weekEnd": "2025-03-28",
+      "ano": 2025,
+      "closedAt": "2025-03-28T12:00:00.000Z",
+      "total": 665,
+      "items": [
+        {
+          "nome": "MIRTES",
+          "funcao": "OUTROS",
+          "valor": 135,
+          "dias": null,
+          "valorDia": null
+        },
+        {
+          "nome": "LUCIENTE",
+          "funcao": "OUTROS",
+          "valor": 330,
+          "dias": null,
+          "valorDia": null
+        },
+        {
+          "nome": "JOSUE",
+          "funcao": "CORTE",
+          "valor": 200,
+          "dias": null,
+          "valorDia": null
+        }
+      ],
+      "fonte": "importado"
+    },
+    {
+      "id": "pdf_2025-04-11_e",
+      "weekStart": "2025-04-11",
+      "weekEnd": "2025-04-11",
+      "ano": 2025,
+      "closedAt": "2025-04-11T12:00:00.000Z",
+      "total": 800,
+      "items": [
+        {
+          "nome": "JOSUE",
+          "funcao": "CORTE",
+          "valor": 200,
+          "dias": null,
+          "valorDia": null
+        },
+        {
+          "nome": "EDUARDO",
+          "funcao": "CORTE",
+          "valor": 200,
+          "dias": null,
+          "valorDia": null
+        },
+        {
+          "nome": "LILIA",
+          "funcao": "ARREMATE",
+          "valor": 300,
+          "dias": null,
+          "valorDia": null
+        },
+        {
+          "nome": "NÃO DETALHADO",
+          "funcao": "NÃO INFORMADO",
+          "valor": 100,
+          "dias": null,
+          "valorDia": null
+        }
+      ],
+      "fonte": "importado"
+    },
+    {
+      "id": "pdf_2025-04-24_f",
+      "weekStart": "2025-04-24",
+      "weekEnd": "2025-04-24",
+      "ano": 2025,
+      "closedAt": "2025-04-24T12:00:00.000Z",
+      "total": 200,
+      "items": [
+        {
+          "nome": "JOSUE",
+          "funcao": "CORTE",
+          "valor": 200,
+          "dias": null,
+          "valorDia": null
+        }
+      ],
+      "fonte": "importado"
+    },
+    {
+      "id": "pdf_2025-05-02_g",
+      "weekStart": "2025-05-02",
+      "weekEnd": "2025-05-02",
+      "ano": 2025,
+      "closedAt": "2025-05-02T12:00:00.000Z",
+      "total": 400,
+      "items": [
+        {
+          "nome": "LILIA",
+          "funcao": "ARREMATE",
+          "valor": 400,
+          "dias": null,
+          "valorDia": null
+        }
+      ],
+      "fonte": "importado"
+    },
+    {
+      "id": "pdf_2025-05-09_h",
+      "weekStart": "2025-05-09",
+      "weekEnd": "2025-05-09",
+      "ano": 2025,
+      "closedAt": "2025-05-09T12:00:00.000Z",
+      "total": 200,
+      "items": [
+        {
+          "nome": "JOSUE",
+          "funcao": "CORTE",
+          "valor": 200,
+          "dias": null,
+          "valorDia": null
+        }
+      ],
+      "fonte": "importado"
+    },
+    {
+      "id": "pdf_2025-05-15_i",
+      "weekStart": "2025-05-15",
+      "weekEnd": "2025-05-15",
+      "ano": 2025,
+      "closedAt": "2025-05-15T12:00:00.000Z",
+      "total": 200,
+      "items": [
+        {
+          "nome": "JOSUE",
+          "funcao": "CORTE",
+          "valor": 200,
+          "dias": null,
+          "valorDia": null
+        }
+      ],
+      "fonte": "importado"
+    },
+    {
+      "id": "pdf_2025-05-16_j",
+      "weekStart": "2025-05-16",
+      "weekEnd": "2025-05-16",
+      "ano": 2025,
+      "closedAt": "2025-05-16T12:00:00.000Z",
+      "total": 200,
+      "items": [
+        {
+          "nome": "JOSUE",
+          "funcao": "CORTE",
+          "valor": 200,
+          "dias": null,
+          "valorDia": null
+        }
+      ],
+      "fonte": "importado"
+    },
+    {
+      "id": "pdf_2025-05-20_k",
+      "weekStart": "2025-05-20",
+      "weekEnd": "2025-05-20",
+      "ano": 2025,
+      "closedAt": "2025-05-20T12:00:00.000Z",
+      "total": 200,
+      "items": [
+        {
+          "nome": "JOSUE",
+          "funcao": "CORTE",
+          "valor": 200,
+          "dias": null,
+          "valorDia": null
+        }
+      ],
+      "fonte": "importado"
+    },
+    {
+      "id": "pdf_2025-05-23_l",
+      "weekStart": "2025-05-23",
+      "weekEnd": "2025-05-23",
+      "ano": 2025,
+      "closedAt": "2025-05-23T12:00:00.000Z",
+      "total": 2030,
+      "items": [
+        {
+          "nome": "JOSUE",
+          "funcao": "CORTE",
+          "valor": 700,
+          "dias": null,
+          "valorDia": null
+        },
+        {
+          "nome": "SILVANIA",
+          "funcao": "COSTURA",
+          "valor": 1000,
+          "dias": null,
+          "valorDia": null
+        },
+        {
+          "nome": "GRASIELLE",
+          "funcao": "ARREMATE",
+          "valor": 200,
+          "dias": null,
+          "valorDia": null
+        },
+        {
+          "nome": "MIRTES",
+          "funcao": "OUTROS",
+          "valor": 130,
+          "dias": null,
+          "valorDia": null
+        }
+      ],
+      "fonte": "importado"
+    },
+    {
+      "id": "pdf_2025-06-20_m",
+      "weekStart": "2025-06-20",
+      "weekEnd": "2025-06-20",
+      "ano": 2025,
+      "closedAt": "2025-06-20T12:00:00.000Z",
+      "total": 1342.4,
+      "items": [
+        {
+          "nome": "MARIZA",
+          "funcao": "OUTROS",
+          "valor": 480,
+          "dias": null,
+          "valorDia": null
+        },
+        {
+          "nome": "VANESSA",
+          "funcao": "OUTROS",
+          "valor": 462.4,
+          "dias": null,
+          "valorDia": null
+        },
+        {
+          "nome": "SILVANIA",
+          "funcao": "ARREMATE",
+          "valor": 400,
+          "dias": null,
+          "valorDia": null
+        }
+      ],
+      "fonte": "importado"
+    },
+    {
+      "id": "pdf_2025-09-03_n",
+      "weekStart": "2025-09-03",
+      "weekEnd": "2025-09-03",
+      "ano": 2025,
+      "closedAt": "2025-09-03T12:00:00.000Z",
+      "total": 38.6,
+      "items": [
+        {
+          "nome": "JOZIANE",
+          "funcao": "OUTROS",
+          "valor": 15.6,
+          "dias": null,
+          "valorDia": null
+        },
+        {
+          "nome": "TATIANA",
+          "funcao": "ARREMATE",
+          "valor": 23.0,
+          "dias": null,
+          "valorDia": null
+        }
+      ],
+      "fonte": "importado"
+    },
+    {
+      "id": "pdf_2025-10-22_o",
+      "weekStart": "2025-10-22",
+      "weekEnd": "2025-10-22",
+      "ano": 2025,
+      "closedAt": "2025-10-22T12:00:00.000Z",
+      "total": 366,
+      "items": [
+        {
+          "nome": "LARISSA",
+          "funcao": "ARREMATE",
+          "valor": 366,
+          "dias": null,
+          "valorDia": null
+        }
+      ],
+      "fonte": "importado"
+    },
+    {
+      "id": "pdf_2025-12-01_p",
+      "weekStart": "2025-12-01",
+      "weekEnd": "2025-12-01",
+      "ano": 2025,
+      "closedAt": "2025-12-01T12:00:00.000Z",
+      "total": 150,
+      "items": [
+        {
+          "nome": "HIGLEY",
+          "funcao": "CORTE",
+          "valor": 150,
+          "dias": null,
+          "valorDia": null
+        }
+      ],
+      "fonte": "importado"
+    },
+    {
+      "id": "pdf_2026-01-09_q",
+      "weekStart": "2026-01-09",
+      "weekEnd": "2026-01-09",
+      "ano": 2026,
+      "closedAt": "2026-01-09T12:00:00.000Z",
+      "total": 2287.5,
+      "items": [
+        {
+          "nome": "LARISSA",
+          "funcao": "ARREMATE",
+          "valor": 625,
+          "dias": null,
+          "valorDia": null
+        },
+        {
+          "nome": "JOSUE",
+          "funcao": "CORTE",
+          "valor": 200,
+          "dias": null,
+          "valorDia": null
+        },
+        {
+          "nome": "HIGLEY",
+          "funcao": "CORTE",
+          "valor": 750,
+          "dias": null,
+          "valorDia": null
+        },
+        {
+          "nome": "JANAINA",
+          "funcao": "CASEADEIRA",
+          "valor": 712.5,
+          "dias": null,
+          "valorDia": null
+        }
+      ],
+      "fonte": "importado"
+    },
+    {
+      "id": "pdf_2026-02-20_r",
+      "weekStart": "2026-02-20",
+      "weekEnd": "2026-02-20",
+      "ano": 2026,
+      "closedAt": "2026-02-20T12:00:00.000Z",
+      "total": 709.1,
+      "items": [
+        {
+          "nome": "YASMIN",
+          "funcao": "ARREMATE",
+          "valor": 127.1,
+          "dias": null,
+          "valorDia": null
+        },
+        {
+          "nome": "ANA PAULA",
+          "funcao": "ARREMATE",
+          "valor": 582,
+          "dias": null,
+          "valorDia": null
+        }
+      ],
+      "fonte": "importado"
+    },
+    {
+      "id": "xls_2026-03-12",
+      "weekStart": "2026-03-12",
+      "weekEnd": "2026-03-12",
+      "ano": 2026,
+      "closedAt": "2026-03-12T12:00:00.000Z",
+      "total": 805.8,
+      "items": [
+        {
+          "nome": "JANAINA",
+          "funcao": "CASEADEIRA",
+          "valor": 570,
+          "dias": null,
+          "valorDia": null
+        },
+        {
+          "nome": "RAYANE",
+          "funcao": "ARREMATE",
+          "valor": 235.8,
+          "dias": null,
+          "valorDia": null
+        }
+      ],
+      "fonte": "importado"
+    },
+    {
+      "id": "xls_2026-03-31a",
+      "weekStart": "2026-03-31",
+      "weekEnd": "2026-03-31",
+      "ano": 2026,
+      "closedAt": "2026-03-31T12:00:00.000Z",
+      "total": 570,
+      "items": [
+        {
+          "nome": "JANAINA",
+          "funcao": "CASEADEIRA",
+          "valor": 570,
+          "dias": null,
+          "valorDia": null
+        }
+      ],
+      "fonte": "importado"
+    },
+    {
+      "id": "xls_2026-03-20",
+      "weekStart": "2026-03-20",
+      "weekEnd": "2026-03-20",
+      "ano": 2026,
+      "closedAt": "2026-03-20T12:00:00.000Z",
+      "total": 1294.6,
+      "items": [
+        {
+          "nome": "SILVANIA",
+          "funcao": "ARREMATE",
+          "valor": 245,
+          "dias": null,
+          "valorDia": null
+        },
+        {
+          "nome": "TATIANA",
+          "funcao": "ARREMATE",
+          "valor": 250,
+          "dias": null,
+          "valorDia": null
+        },
+        {
+          "nome": "JANAINA",
+          "funcao": "CASEADEIRA",
+          "valor": 427.5,
+          "dias": null,
+          "valorDia": null
+        },
+        {
+          "nome": "RAYANE",
+          "funcao": "ARREMATE",
+          "valor": 372.1,
+          "dias": null,
+          "valorDia": null
+        }
+      ],
+      "fonte": "importado"
+    },
+    {
+      "id": "xls_2026-03-31b",
+      "weekStart": "2026-03-31",
+      "weekEnd": "2026-03-31",
+      "ano": 2026,
+      "closedAt": "2026-03-31T12:00:00.000Z",
+      "total": 1126.25,
+      "items": [
+        {
+          "nome": "SILVANIA",
+          "funcao": "ARREMATE",
+          "valor": 122.5,
+          "dias": null,
+          "valorDia": null
+        },
+        {
+          "nome": "JANAINA",
+          "funcao": "CASEADEIRA",
+          "valor": 641.25,
+          "dias": null,
+          "valorDia": null
+        },
+        {
+          "nome": "TATIANA",
+          "funcao": "ARREMATE",
+          "valor": 250,
+          "dias": null,
+          "valorDia": null
+        },
+        {
+          "nome": "VALÉRIA",
+          "funcao": "OUTROS",
+          "valor": 112.5,
+          "dias": null,
+          "valorDia": null
+        }
+      ],
+      "fonte": "importado"
+    },
+    {
+      "id": "xls_2026-04-02",
+      "weekStart": "2026-04-02",
+      "weekEnd": "2026-04-02",
+      "ano": 2026,
+      "closedAt": "2026-04-02T12:00:00.000Z",
+      "total": 1005.85,
+      "items": [
+        {
+          "nome": "VALÉRIA",
+          "funcao": "OUTROS",
+          "valor": 112.5,
+          "dias": null,
+          "valorDia": null
+        },
+        {
+          "nome": "TATIANA",
+          "funcao": "ARREMATE",
+          "valor": 125,
+          "dias": null,
+          "valorDia": null
+        },
+        {
+          "nome": "JANAINA",
+          "funcao": "CASEADEIRA",
+          "valor": 641.25,
+          "dias": null,
+          "valorDia": null
+        },
+        {
+          "nome": "YASMIN",
+          "funcao": "ARREMATE",
+          "valor": 127.1,
+          "dias": null,
+          "valorDia": null
+        }
+      ],
+      "fonte": "importado"
+    },
+    {
+      "id": "xls_2026-04-13",
+      "weekStart": "2026-04-13",
+      "weekEnd": "2026-04-13",
+      "ano": 2026,
+      "closedAt": "2026-04-13T12:00:00.000Z",
+      "total": 927.0,
+      "items": [
+        {
+          "nome": "TATIANA",
+          "funcao": "ARREMATE",
+          "valor": 500,
+          "dias": null,
+          "valorDia": null
+        },
+        {
+          "nome": "JANAINA",
+          "funcao": "CASEADEIRA",
+          "valor": 427.0,
+          "dias": null,
+          "valorDia": null
+        }
+      ],
+      "fonte": "importado"
+    },
+    {
+      "id": "xls_2026-04-17",
+      "weekStart": "2026-04-17",
+      "weekEnd": "2026-04-17",
+      "ano": 2026,
+      "closedAt": "2026-04-17T12:00:00.000Z",
+      "total": 615.51,
+      "items": [
+        {
+          "nome": "JANAINA",
+          "funcao": "CASEADEIRA",
+          "valor": 285,
+          "dias": null,
+          "valorDia": null
+        },
+        {
+          "nome": "BRUNA",
+          "funcao": "COSTURA",
+          "valor": 330.51,
+          "dias": null,
+          "valorDia": null
+        }
+      ],
+      "fonte": "importado"
+    },
+    {
+      "id": "xls_2026-04-24",
+      "weekStart": "2026-04-24",
+      "weekEnd": "2026-04-24",
+      "ano": 2026,
+      "closedAt": "2026-04-24T12:00:00.000Z",
+      "total": 463.75,
+      "items": [
+        {
+          "nome": "TATIANA",
+          "funcao": "ARREMATE",
+          "valor": 250,
+          "dias": null,
+          "valorDia": null
+        },
+        {
+          "nome": "JANAINA",
+          "funcao": "CASEADEIRA",
+          "valor": 213.75,
+          "dias": null,
+          "valorDia": null
+        }
+      ],
+      "fonte": "importado"
+    },
+    {
+      "id": "xls_2026-05-04",
+      "weekStart": "2026-05-04",
+      "weekEnd": "2026-05-04",
+      "ano": 2026,
+      "closedAt": "2026-05-04T12:00:00.000Z",
+      "total": 555,
+      "items": [
+        {
+          "nome": "JANAINA",
+          "funcao": "CASEADEIRA",
+          "valor": 285,
+          "dias": null,
+          "valorDia": null
+        },
+        {
+          "nome": "BRUNA",
+          "funcao": "COSTURA",
+          "valor": 270,
+          "dias": null,
+          "valorDia": null
+        }
+      ],
+      "fonte": "importado"
+    },
+    {
+      "id": "xls_2026-05-15",
+      "weekStart": "2026-05-15",
+      "weekEnd": "2026-05-15",
+      "ano": 2026,
+      "closedAt": "2026-05-15T12:00:00.000Z",
+      "total": 1372.5,
+      "items": [
+        {
+          "nome": "JANAINA",
+          "funcao": "CASEADEIRA",
+          "valor": 285,
+          "dias": null,
+          "valorDia": null
+        },
+        {
+          "nome": "SABRINA",
+          "funcao": "ARREMATE",
+          "valor": 337.5,
+          "dias": null,
+          "valorDia": null
+        },
+        {
+          "nome": "CARLOS",
+          "funcao": "MOTORISTA",
+          "valor": 367.5,
+          "dias": null,
+          "valorDia": null
+        },
+        {
+          "nome": "NÃO DETALHADO",
+          "funcao": "NÃO INFORMADO",
+          "valor": 382.5,
+          "dias": null,
+          "valorDia": null
+        }
+      ],
+      "fonte": "importado"
+    },
+    {
+      "id": "xls_2026-05-22",
+      "weekStart": "2026-05-22",
+      "weekEnd": "2026-05-22",
+      "ano": 2026,
+      "closedAt": "2026-05-22T12:00:00.000Z",
+      "total": 225,
+      "items": [
+        {
+          "nome": "SABRINA",
+          "funcao": "ARREMATE",
+          "valor": 225,
+          "dias": null,
+          "valorDia": null
+        }
+      ],
+      "fonte": "importado"
+    },
+    {
+      "id": "xls_2026-05-29",
+      "weekStart": "2026-05-29",
+      "weekEnd": "2026-05-29",
+      "ano": 2026,
+      "closedAt": "2026-05-29T12:00:00.000Z",
+      "total": 280,
+      "items": [
+        {
+          "nome": "TONY",
+          "funcao": "MOTORISTA",
+          "valor": 280,
+          "dias": null,
+          "valorDia": null
+        }
+      ],
+      "fonte": "importado"
+    }
+  ],
+  "weeks": {}
 }
