@@ -21,8 +21,8 @@ function ensureData() {
   // migracao: garante as chaves novas em bases ja existentes (preserva pin/products/records)
   const d = JSON.parse(fs.readFileSync(DATA_FILE, "utf8"));
   let changed = false;
-  for (const k of ["freelancers", "payments", "weeks"]) {
-    if (d[k] === undefined) { d[k] = seed[k]; changed = true; }
+  for (const k of ["freelancers", "payments", "weeks", "collaborators", "pressRecords"]) {
+    if (d[k] === undefined) { d[k] = (seed[k] !== undefined ? seed[k] : (k === "weeks" ? {} : [])); changed = true; }
   }
   if (changed) {
     fs.writeFileSync(DATA_FILE, JSON.stringify(d, null, 2));
@@ -71,6 +71,7 @@ app.post("/api/records", async (req, res) => {
   const rec = {
     id: "r" + Date.now(),
     data: r.data || new Date().toISOString().slice(0, 10),
+    colaborador: String(r.colaborador || ""),
     cliente: String(r.cliente), produto: String(r.produto),
     inicio: String(r.inicio), fim: String(r.fim),
     pausa: Number(r.pausa) || 0, quantidade: Number(r.quantidade),
@@ -84,6 +85,31 @@ app.post("/api/records", async (req, res) => {
 app.post("/api/verify-pin", (req, res) => {
   const ok = (req.body && req.body.pin) === readData().pin;
   res.json({ ok });
+});
+// lista de colaboradores: necessaria pros formularios de lancamento (publico)
+app.get("/api/collaborators", (req, res) => {
+  res.json(readData().collaborators || []);
+});
+// adicionar lancamento de prensagem (DTF/Sublimacao): aberto
+app.post("/api/press", async (req, res) => {
+  const r = req.body || {};
+  if (!r.tecnica || !r.inicio || !r.fim || !(Number(r.quantidade) > 0)) {
+    return res.status(400).json({ error: "dados incompletos" });
+  }
+  const rec = {
+    id: "pr" + Date.now(),
+    data: r.data || new Date().toISOString().slice(0, 10),
+    colaborador: String(r.colaborador || ""),
+    tecnica: String(r.tecnica),
+    prensagem: String(r.prensagem || ""),
+    peca: String(r.peca || ""), parte: String(r.parte || ""),
+    tipo: String(r.tipo || ""), aberta: String(r.aberta || ""),
+    inicio: String(r.inicio), fim: String(r.fim),
+    pausa: Number(r.pausa) || 0, quantidade: Number(r.quantidade),
+    obs: String(r.obs || ""),
+  };
+  await writeData((d) => { if (!d.pressRecords) d.pressRecords = []; d.pressRecords.unshift(rec); });
+  res.json(rec);
 });
 
 // ---------- rotas protegidas (gestor) ----------
@@ -112,6 +138,32 @@ app.delete("/api/records/:id", requirePin, async (req, res) => {
 app.put("/api/products", requirePin, async (req, res) => {
   const list = Array.isArray(req.body) ? req.body : [];
   await writeData((d) => { d.products = list; });
+  res.json({ ok: true });
+});
+app.put("/api/collaborators", requirePin, async (req, res) => {
+  const list = Array.isArray(req.body) ? req.body : [];
+  await writeData((d) => { d.collaborators = list; });
+  res.json({ ok: true });
+});
+app.get("/api/press", requirePin, (req, res) => {
+  res.json(readData().pressRecords || []);
+});
+app.put("/api/press/:id", requirePin, async (req, res) => {
+  const id = req.params.id; const u = req.body || {};
+  let found = false;
+  await writeData((d) => {
+    d.pressRecords = (d.pressRecords || []).map((x) => {
+      if (x.id !== id) return x;
+      found = true;
+      return { ...x, ...u, id,
+        pausa: Number(u.pausa) || 0, quantidade: Number(u.quantidade) || x.quantidade };
+    });
+  });
+  if (!found) return res.status(404).json({ error: "nao encontrado" });
+  res.json({ ok: true });
+});
+app.delete("/api/press/:id", requirePin, async (req, res) => {
+  await writeData((d) => { d.pressRecords = (d.pressRecords || []).filter((x) => x.id !== req.params.id); });
   res.json({ ok: true });
 });
 app.post("/api/change-pin", requirePin, async (req, res) => {

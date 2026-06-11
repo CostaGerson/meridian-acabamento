@@ -139,6 +139,8 @@ input[type="date"],input[type="time"]{-webkit-appearance:none;appearance:none}
 .selrow.on .cbox{background:var(--accent);border-color:var(--accent)}
 .bar{height:6px;background:var(--bg);border-radius:6px;overflow:hidden}
 .bar>i{display:block;height:100%;background:var(--accent)}
+.ctag{display:inline-flex;align-items:center;gap:4px;background:var(--bg);border:1px solid var(--line);border-radius:20px;padding:6px 6px 6px 12px;font-size:13px;margin:0 6px 6px 0}
+.ctag button{background:none;border:none;color:var(--muted);cursor:pointer;display:flex;padding:2px;border-radius:50%}
 </style>
 <script>try{document.documentElement.setAttribute("data-theme",localStorage.getItem("mtheme")||"dark")}catch(e){}</script>
 </head>
@@ -182,6 +184,7 @@ const I = {
   x:'<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>',
   sun:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>',
   moon:'<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z"/>',
+  layers:'<polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/>',
 };
 function svg(name, size){size=size||18;return '<svg width="'+size+'" height="'+size+'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'+I[name]+'</svg>';}
 
@@ -197,7 +200,7 @@ function metricsRec(r){const minutos=Math.max(0,minutosEntre(r.inicio,r.fim)-(Nu
 function esc(s){return String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 
 /* ===================== ESTADO + API ===================== */
-const state={area:null,theme:"dark",gtab:"calculadora",ftab:"semana",unlocked:false,pin:sessionStorage.getItem("mpin")||null,products:[],records:[],freelancers:[],payments:[],weeks:{},modal:null,fmonday:"",fp_de:"",fp_ate:"",fp_preset:"Tudo",fp_func:"todas",fp_open:null};
+const state={area:null,theme:"dark",gtab:"calculadora",ftab:"semana",unlocked:false,pin:sessionStorage.getItem("mpin")||null,products:[],records:[],collaborators:[],pressRecords:[],ptab:"acab",ctab:"acab",htab:"acab",freelancers:[],payments:[],weeks:{},modal:null,fmonday:"",fp_de:"",fp_ate:"",fp_preset:"Tudo",fp_func:"todas",fp_open:null};
 let syncTimer=null;
 
 async function api(path,opts){opts=opts||{};const headers={"Content-Type":"application/json"};if(state.pin)headers["x-pin"]=state.pin;
@@ -206,18 +209,20 @@ async function api(path,opts){opts=opts||{};const headers={"Content-Type":"appli
   return res.status===204?null:res.json();}
 
 async function loadProducts(){try{state.products=await api("/api/products");}catch(e){}}
+async function loadCollaborators(){try{state.collaborators=await api("/api/collaborators");}catch(e){}}
 async function loadRecords(){if(!state.unlocked)return;try{state.records=await api("/api/records");}catch(e){if((""+e).includes("401")){lock();}}}
-async function loadGestao(){if(!state.unlocked)return;try{const g=await api("/api/gestao");state.freelancers=g.freelancers||[];state.payments=g.payments||[];state.weeks=g.weeks||{};}catch(e){if((""+e).includes("401")){lock();}}}
+async function loadGestao(){if(!state.unlocked)return;try{const g=await api("/api/gestao");state.freelancers=g.freelancers||[];state.payments=g.payments||[];state.weeks=g.weeks||{};}catch(e){if((""+e).includes("401")){lock();}}
+  try{state.pressRecords=await api("/api/press");}catch(e){}}
 
 function flashSync(){const el=document.querySelector("#syncbox");if(!el)return;el.classList.add("on");el.querySelector("svg").classList.add("spin");
   setTimeout(()=>{el.classList.remove("on");const s=el.querySelector("svg");if(s)s.classList.remove("spin");},1100);}
 
 async function poll(){
-  await loadProducts();
+  await loadProducts();await loadCollaborators();
   if(state.unlocked){await loadRecords(); if(!state.modal) await loadGestao();}
   flashSync();
   if(state.area==="gestao"){
-    if(state.gtab==="calculadora") calcRecompute();
+    if(state.gtab==="calculadora"){calcRecompute();pressCalcRecompute();}
     else if(state.gtab==="historico" && !state.modal) renderTab();
   }
 }
@@ -285,9 +290,9 @@ function openPinModal(target){
 function renderTab(){
   const v=document.getElementById("view");
   if(!state.area){v.innerHTML=viewHome();bindTab();return;}
-  if(state.area==="producao"){v.innerHTML=viewRegistrar();bindTab();return;}
-  if(state.gtab==="calculadora")v.innerHTML=viewCalc();
-  else if(state.gtab==="historico")v.innerHTML=viewHistorico();
+  if(state.area==="producao"){v.innerHTML=viewProducao();bindTab();return;}
+  if(state.gtab==="calculadora")v.innerHTML=viewCalcWrap();
+  else if(state.gtab==="historico")v.innerHTML=viewHistWrap();
   else if(state.gtab==="produtos")v.innerHTML=viewProdutos();
   else if(state.gtab==="freelancers")v.innerHTML=viewFreel();
   bindTab();
@@ -310,6 +315,7 @@ function viewRegistrar(){
   return '<div class="fu">'+sectionTitle("Registrar produção","Preencha ao terminar cada lote. Vai direto pra base de dados.")+
    '<div class="card">'+
    '<div class="row">'+field("Data",'<input type="date" id="r_data" value="'+new Date().toISOString().slice(0,10)+'">')+field("Cliente",'<input id="r_cliente" placeholder="Ex: Recatec">')+'</div>'+
+   field("Colaborador (quem fez o lançamento)",'<select id="r_colab">'+collabOptions("")+'</select>')+
    field("Produto",'<select id="r_produto">'+productOptions(p0)+'</select>')+
    '<div class="row">'+field("Início",'<input type="time" id="r_inicio">')+field("Fim",'<input type="time" id="r_fim">')+'</div>'+
    '<div class="row">'+field("Pausa (min)",'<input type="number" min="0" id="r_pausa" value="0">',"Almoço, paradas…")+field("Quantidade (peças)",'<input type="number" min="1" id="r_qt" placeholder="Ex: 300">')+'</div>'+
@@ -324,7 +330,7 @@ function viewRegistrar(){
    '<p class="secsub" id="r_help" style="text-align:center;margin-top:10px">Preencha cliente, produto, horários e quantidade. O tempo trabalhado precisa ser maior que zero.</p>'+
    '</div></div>';
 }
-function regForm(){return{data:val("r_data"),cliente:val("r_cliente"),produto:val("r_produto"),inicio:val("r_inicio"),fim:val("r_fim"),pausa:val("r_pausa"),quantidade:val("r_qt"),totalPessoas:val("r_pes"),etapas:val("r_et"),obs:val("r_obs")};}
+function regForm(){return{data:val("r_data"),colaborador:val("r_colab"),cliente:val("r_cliente"),produto:val("r_produto"),inicio:val("r_inicio"),fim:val("r_fim"),pausa:val("r_pausa"),quantidade:val("r_qt"),totalPessoas:val("r_pes"),etapas:val("r_et"),obs:val("r_obs")};}
 function val(id){const e=document.getElementById(id);return e?e.value:"";}
 function regPreview(){
   const f=regForm();const m=metricsRec(f);
@@ -366,7 +372,7 @@ function resCard(ic,label,bigId,subId,acc){return '<div class="res'+(acc?" acc":
 function kvRow(k,id){return '<div class="kv"><span class="k">'+k+'</span><span class="v" id="'+id+'">—</span></div>';}
 let calcBase="q3";
 function calcRecompute(){
-  if(state.area!=="gestao"||state.gtab!=="calculadora")return;
+  if(state.area!=="gestao"||state.gtab!=="calculadora"||state.ctab!=="acab")return;
   const produto=val("c_prod");
   const prod=state.products.find(p=>p.nome===produto);
   const recs=state.records.filter(r=>norm(r.produto)===norm(produto));
@@ -408,7 +414,7 @@ function histCard(r){
   const m=metricsRec(r);
   return '<div class="histcard"><div class="flex" style="justify-content:space-between;align-items:flex-start;gap:10px">'+
    '<div><div style="font-family:Oswald,sans-serif;font-size:17px;font-weight:600;letter-spacing:.02em">'+esc(r.produto)+' <span class="acccolor">· '+r.quantidade+' pç</span></div>'+
-   '<div class="muted" style="font-size:12.5px;margin-top:3px">'+esc(r.cliente||"—")+' · '+esc(r.data)+' · '+esc(r.inicio)+'–'+esc(r.fim)+(r.totalPessoas?' · '+r.totalPessoas+'p':'')+'</div></div>'+
+   '<div class="muted" style="font-size:12.5px;margin-top:3px">'+esc(r.cliente||"—")+' · '+esc(r.data)+' · '+esc(r.inicio)+'–'+esc(r.fim)+(r.totalPessoas?' · '+r.totalPessoas+'p':'')+(r.colaborador?' · '+esc(r.colaborador):'')+'</div></div>'+
    '<div class="flex" style="gap:6px"><button class="iconbtn" data-edit="'+r.id+'">'+svg("pencil",16)+'</button><button class="iconbtn" data-del="'+r.id+'">'+svg("trash",16)+'</button></div></div>'+
    '<div class="flex gap16 wrap" style="margin-top:10px;font-size:12.5px">'+
    '<span class="muted">Trabalhado <b style="color:var(--text)">'+m.minutos+' min</b></span>'+
@@ -417,9 +423,9 @@ function histCard(r){
    (r.obs?'<div class="muted" style="font-size:12px;margin-top:8px;font-style:italic">“'+esc(r.obs)+'”</div>':'')+'</div>';
 }
 function exportCSV(){
-  const head=["Data","Cliente","Produto","Inicio","Fim","Pausa(min)","Quantidade","Pessoas","Etapas","Minutos trabalhados","Tempo ciclo (s)","Produtividade (pc/h)","Obs"];
+  const head=["Data","Colaborador","Cliente","Produto","Inicio","Fim","Pausa(min)","Quantidade","Pessoas","Etapas","Minutos trabalhados","Tempo ciclo (s)","Produtividade (pc/h)","Obs"];
   const q=v=>'"'+String(v==null?"":v).replace(/"/g,'""')+'"';
-  const rows=state.records.map(r=>{const m=metricsRec(r);return[r.data,r.cliente,r.produto,r.inicio,r.fim,r.pausa,r.quantidade,r.totalPessoas,r.etapas,m.minutos,m.tempoCiclo.toFixed(2),m.prodHr.toFixed(2),r.obs];});
+  const rows=state.records.map(r=>{const m=metricsRec(r);return[r.data,r.colaborador,r.cliente,r.produto,r.inicio,r.fim,r.pausa,r.quantidade,r.totalPessoas,r.etapas,m.minutos,m.tempoCiclo.toFixed(2),m.prodHr.toFixed(2),r.obs];});
   const csv=[head,...rows].map(r=>r.map(q).join(";")).join("\r\n");
   const blob=new Blob(["\ufeff"+csv],{type:"text/csv;charset=utf-8;"});
   const url=URL.createObjectURL(blob);const a=document.createElement("a");a.href=url;a.download="base_meridian_"+new Date().toISOString().slice(0,10)+".csv";a.click();URL.revokeObjectURL(url);
@@ -429,6 +435,7 @@ function openEditRecord(id){
   document.getElementById("modalRoot").innerHTML='<div class="overlay" id="ov"><div class="sheet">'+
    '<div class="sh"><h3>EDITAR REGISTRO</h3><button class="xbtn" id="cx">'+svg("x",20)+'</button></div>'+
    '<div class="row">'+field("Data",'<input type="date" id="e_data" value="'+esc(r.data)+'">')+field("Cliente",'<input id="e_cliente" value="'+esc(r.cliente)+'">')+'</div>'+
+   field("Colaborador",'<select id="e_colab">'+collabOptions(r.colaborador)+'</select>')+
    field("Produto",'<select id="e_produto">'+productOptions(r.produto)+'</select>')+
    '<div class="row">'+field("Início",'<input type="time" id="e_inicio" value="'+esc(r.inicio)+'">')+field("Fim",'<input type="time" id="e_fim" value="'+esc(r.fim)+'">')+'</div>'+
    '<div class="row">'+field("Pausa (min)",'<input type="number" min="0" id="e_pausa" value="'+r.pausa+'">')+field("Quantidade",'<input type="number" min="1" id="e_qt" value="'+r.quantidade+'">')+'</div>'+
@@ -440,7 +447,7 @@ function openEditRecord(id){
   document.getElementById("cx").onclick=close;document.getElementById("e_cancel").onclick=close;
   document.getElementById("ov").onclick=e=>{if(e.target.id==="ov")close();};
   document.getElementById("e_save").onclick=async()=>{
-    const body={data:val("e_data"),cliente:val("e_cliente"),produto:val("e_produto"),inicio:val("e_inicio"),fim:val("e_fim"),pausa:val("e_pausa"),quantidade:val("e_qt"),totalPessoas:val("e_pes"),etapas:val("e_et"),obs:val("e_obs")};
+    const body={data:val("e_data"),colaborador:val("e_colab"),cliente:val("e_cliente"),produto:val("e_produto"),inicio:val("e_inicio"),fim:val("e_fim"),pausa:val("e_pausa"),quantidade:val("e_qt"),totalPessoas:val("e_pes"),etapas:val("e_et"),obs:val("e_obs")};
     try{await api("/api/records/"+id,{method:"PUT",body});await loadRecords();close();renderTab();toast("Registro atualizado");}catch(e){toast("Erro: "+e.message);}
   };
 }
@@ -459,8 +466,13 @@ function viewProdutos(){
    '<div class="flex" style="flex-direction:column;gap:10px;margin-bottom:14px">'+cards+'</div>'+
    '<button class="btn ghost full" id="p_new">'+svg("plus",16)+' Novo produto</button>'+
    '<div class="card" style="margin-top:22px">'+
+     '<div class="flex" style="align-items:center;gap:8px;margin-bottom:12px"><span class="acccolor">'+svg("users",16)+'</span><span class="lab" style="margin:0">Colaboradores de lançamento</span></div>'+
+     '<div style="margin-bottom:12px">'+collabChips()+'</div>'+
+     '<div class="flex gap10"><input id="c_newcolab" placeholder="Nome do colaborador"><button class="btn primary" id="c_addcolab" style="padding:0 18px">'+svg("plus",16)+'</button></div>'+
+   '</div>'+
+   '<div class="card" style="margin-top:16px">'+
      '<div class="flex" style="align-items:center;gap:8px;margin-bottom:12px"><span class="acccolor">'+svg("key",16)+'</span><span class="lab" style="margin:0">Senha de acesso</span></div>'+
-     field("Senha das áreas restritas",'<input type="text" id="p_pin" value="">',"Protege Calculadora, Histórico e Produtos.")+
+     field("Senha das áreas restritas",'<input type="text" id="p_pin" value="">',"Protege toda a área de Gestão (Calculadora, Histórico, Produtos e Freelancers).")+
      '<button class="btn primary full" id="p_savepin">Salvar senha</button>'+
    '</div></div>';
 }
@@ -493,7 +505,9 @@ async function delProduct(id){const next=state.products.filter(x=>x.id!==id);try
 function bindTab(){
   if(!state.area){bindHome();return;}
   if(state.area==="producao"){
-    ["r_data","r_cliente","r_produto","r_inicio","r_fim","r_pausa","r_qt","r_pes","r_et","r_obs"].forEach(id=>{const e=document.getElementById(id);if(e){e.addEventListener("input",regPreview);e.addEventListener("change",regPreview);}});
+    document.querySelectorAll(".segb[data-ptab]").forEach(function(b){b.onclick=function(){state.ptab=b.dataset.ptab;renderTab();};});
+    if(state.ptab==="press"){bindPress();return;}
+    ["r_data","r_colab","r_cliente","r_produto","r_inicio","r_fim","r_pausa","r_qt","r_pes","r_et","r_obs"].forEach(id=>{const e=document.getElementById(id);if(e){e.addEventListener("input",regPreview);e.addEventListener("change",regPreview);}});
     document.getElementById("r_save").onclick=async()=>{
       const f=regForm();const m=metricsRec(f);
       if(!(f.cliente&&f.produto&&f.inicio&&f.fim&&Number(f.quantidade)>0&&m.minutos>0))return;
@@ -505,16 +519,21 @@ function bindTab(){
     return;
   }
   if(state.gtab==="calculadora"){
+    document.querySelectorAll(".segb[data-ctab]").forEach(function(b){b.onclick=function(){state.ctab=b.dataset.ctab;renderTab();};});
+    if(state.ctab==="press"){bindPressCalc();return;}
     ["c_prod","c_dem","c_ch","c_cu"].forEach(id=>{const e=document.getElementById(id);if(e)e.addEventListener("input",calcRecompute);});
     document.getElementById("c_prod").addEventListener("change",calcRecompute);
     document.querySelectorAll(".stage[data-base]").forEach(b=>b.onclick=()=>{calcBase=b.dataset.base;
       document.querySelectorAll(".stage[data-base]").forEach(x=>x.classList.toggle("on",x.dataset.base===calcBase));calcRecompute();});
     calcRecompute();
   }else if(state.gtab==="historico"){
+    document.querySelectorAll(".segb[data-htab]").forEach(function(b){b.onclick=function(){state.htab=b.dataset.htab;renderTab();};});
+    if(state.htab==="press"){bindPressHist();return;}
     document.getElementById("h_export").onclick=exportCSV;
     document.querySelectorAll("[data-edit]").forEach(b=>b.onclick=()=>openEditRecord(b.dataset.edit));
     document.querySelectorAll("[data-del]").forEach(b=>b.onclick=async()=>{try{await api("/api/records/"+b.dataset.del,{method:"DELETE"});await loadRecords();renderTab();}catch(e){toast("Erro: "+e.message);}});
   }else if(state.gtab==="produtos"){
+    bindCollaborators();
     document.getElementById("p_new").onclick=()=>openProdModal("new");
     document.querySelectorAll("[data-pedit]").forEach(b=>b.onclick=()=>openProdModal(b.dataset.pedit));
     document.querySelectorAll("[data-pdel]").forEach(b=>b.onclick=()=>delProduct(b.dataset.pdel));
@@ -541,8 +560,8 @@ function fbCopy(t){var ta=document.createElement("textarea");ta.value=t;ta.style
 
 function fWeekTotals(){
   var wk=state.weeks[state.fmonday]||{};var map={};
-  Object.keys(wk).forEach(function(k){(wk[k]||[]).forEach(function(id){map[id]=(map[id]||0)+1;});});
-  return Object.keys(map).map(function(id){var f=state.freelancers.find(function(x){return x.id===id;});if(!f)return null;return{f:f,dias:map[id],valor:map[id]*totalDia(f)};}).filter(Boolean).sort(function(a,b){return a.f.nome.localeCompare(b.f.nome);});
+  Object.keys(wk).forEach(function(k){(wk[k]||[]).forEach(function(e){var n=normEntry(e);var f=state.freelancers.find(function(x){return x.id===n.id;});if(!f)return;if(!map[n.id])map[n.id]={dias:0,valor:0,parcial:false};map[n.id].dias+=1;map[n.id].valor+=entryValor(f,n);if(n.h!=null&&n.h!==""&&Number(n.h)>0&&Number(n.h)<BASE_HOURS)map[n.id].parcial=true;});});
+  return Object.keys(map).map(function(id){var f=state.freelancers.find(function(x){return x.id===id;});if(!f)return null;return{f:f,dias:map[id].dias,valor:map[id].valor,parcial:map[id].parcial};}).filter(Boolean).sort(function(a,b){return a.f.nome.localeCompare(b.f.nome);});
 }
 
 function viewFreel(){
@@ -557,7 +576,7 @@ function viewFSemana(){
   var days="";
   for(var i=0;i<7;i++){
     var ids=wk[i]||[];
-    var nomes=ids.map(function(id){var f=state.freelancers.find(function(x){return x.id===id;});return f?f.nome:"";}).filter(Boolean).join(", ");
+    var nomes=ids.map(function(e){var n=normEntry(e);var f=state.freelancers.find(function(x){return x.id===n.id;});return f?(f.nome+(n.h!=null&&n.h!==""?" ("+n.h+"h)":"")):"";}).filter(Boolean).join(", ");
     days+='<div class="daycard'+(ids.length?" has":"")+'" data-day="'+i+'">'+
       '<div class="daynum"><div style="font-family:Oswald,sans-serif;font-weight:600;font-size:13px;'+(ids.length?"color:var(--accent)":"")+'">'+FDIAS_C[i]+'</div><div class="muted" style="font-size:10px">'+fDM(fDayISO(mon,i))+'</div></div>'+
       '<div style="flex:1;min-width:0;font-size:12.5px;'+(ids.length?"":"color:var(--muted)")+';overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+(ids.length?esc(nomes):"Toque para adicionar")+'</div>'+
@@ -565,7 +584,7 @@ function viewFSemana(){
   }
   var resumo;
   if(totals.length){
-    resumo=totals.map(function(t){return '<div class="flex" style="align-items:center;gap:10px;font-size:13px;padding:3px 0"><span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc(t.f.nome)+'</span><span class="muted" style="font-size:11px">'+t.dias+'d × '+brl(totalDia(t.f))+'</span><span style="font-weight:800;min-width:90px;text-align:right">'+brl(t.valor)+'</span></div>';}).join("");
+    resumo=totals.map(function(t){return '<div class="flex" style="align-items:center;gap:10px;font-size:13px;padding:3px 0"><span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc(t.f.nome)+'</span><span class="muted" style="font-size:11px">'+t.dias+'d'+(t.parcial?' · parcial':'')+'</span><span style="font-weight:800;min-width:90px;text-align:right">'+brl(t.valor)+'</span></div>';}).join("");
   } else { resumo='<p class="muted" style="font-size:13px;margin:2px 0">Adicione prestadores aos dias para ver o valor devido a cada um.</p>'; }
   return sectionTitle("Freelancers","Semana de pagamento. Toque num dia e marque quem trabalhou.")+
    '<div class="flex" style="align-items:center;gap:8px;margin-bottom:14px">'+
@@ -585,14 +604,24 @@ function viewFSemana(){
 
 function openFDay(i){state.modal="fday";state._fday=i;state._fdq="";renderFDay();}
 function renderFDay(){
-  var i=state._fday;var mon=state.fmonday;var wk=state.weeks[mon]||{};var sel=wk[i]||[];
+  var i=state._fday;var mon=state.fmonday;var wk=state.weeks[mon]||{};var sel=(wk[i]||[]).map(normEntry);
   var q=(state._fdq||"").toLowerCase();
+  var byId=function(id){return sel.find(function(e){return e.id===id;});};
   var list=state.freelancers.filter(function(f){return f.nome.toLowerCase().indexOf(q)>=0||f.funcao.toLowerCase().indexOf(q)>=0;}).sort(function(a,b){return a.nome.localeCompare(b.nome);});
-  var rows=list.map(function(f){var on=sel.indexOf(f.id)>=0;
-    return '<div class="selrow'+(on?" on":"")+'" data-fid="'+f.id+'"><div class="cbox">'+(on?svg("check",14):"")+'</div><div style="flex:1;min-width:0"><div style="font-size:14px;font-weight:600">'+esc(f.nome)+'</div><div class="muted" style="font-size:11px">'+esc(f.funcao)+'</div></div><div style="font-size:13px;font-weight:700;'+(on?"color:var(--accent)":"color:var(--muted)")+'">'+brl(totalDia(f))+'</div></div>';
+  var rows=list.map(function(f){
+    var ent=byId(f.id);var on=!!ent;
+    var hval=(on&&ent.h!=null&&ent.h!=="")?ent.h:"";
+    var valor=on?entryValor(f,ent):totalDia(f);
+    return '<div class="selrow'+(on?" on":"")+'">'+
+      '<div class="cbox" data-tog="'+f.id+'">'+(on?svg("check",14):"")+'</div>'+
+      '<div style="flex:1;min-width:0">'+
+        '<div data-tog="'+f.id+'" style="cursor:pointer"><div style="font-size:14px;font-weight:600">'+esc(f.nome)+'</div><div class="muted" style="font-size:11px">'+esc(f.funcao)+'</div></div>'+
+        (on?'<div style="margin-top:7px;display:flex;align-items:center;gap:7px"><input class="hin" data-h="'+f.id+'" type="number" min="0" step="0.5" placeholder="dia cheio ('+BASE_HOURS+'h)" value="'+hval+'" style="width:120px;padding:6px 8px;font-size:12px"><span class="muted" style="font-size:11px">h trabalhadas</span></div>':'')+
+      '</div>'+
+      '<div style="text-align:right;font-size:13px;font-weight:700;'+(on?"color:var(--accent)":"color:var(--muted)")+'">'+brl(valor)+'</div></div>';
   }).join("");
   document.getElementById("modalRoot").innerHTML='<div class="overlay" id="ov"><div class="sheet">'+
-    '<div class="sh"><div><h3>'+FDIAS[i].toUpperCase()+'</h3><div class="muted" style="font-size:12px">'+fDM(fDayISO(mon,i))+' · '+sel.length+' selecionado(s)</div></div><button class="xbtn" id="cx">'+svg("x",20)+'</button></div>'+
+    '<div class="sh"><div><h3>'+FDIAS[i].toUpperCase()+'</h3><div class="muted" style="font-size:12px">'+fDM(fDayISO(mon,i))+' · '+sel.length+' selecionado(s) · vazio = dia cheio</div></div><button class="xbtn" id="cx">'+svg("x",20)+'</button></div>'+
     '<input id="fdq" placeholder="Buscar nome ou função…" value="'+esc(state._fdq||"")+'" style="margin-bottom:12px">'+
     '<div style="display:flex;flex-direction:column;gap:7px;max-height:52vh;overflow-y:auto">'+rows+'</div>'+
     '<button class="btn primary full" id="fdok" style="margin-top:14px">Pronto</button>'+
@@ -601,13 +630,26 @@ function renderFDay(){
   document.getElementById("cx").onclick=close;document.getElementById("fdok").onclick=close;
   document.getElementById("ov").onclick=function(e){if(e.target.id==="ov")close();};
   document.getElementById("fdq").addEventListener("input",function(e){state._fdq=e.target.value;renderFDay();setTimeout(function(){var el=document.getElementById("fdq");if(el){el.focus();el.setSelectionRange(el.value.length,el.value.length);}},0);});
-  document.querySelectorAll("#modalRoot .selrow").forEach(function(b){b.onclick=async function(){
-    var id=b.dataset.fid;var w=state.weeks[mon]||{};var cur=w[i]||[];
-    var nx=cur.indexOf(id)>=0?cur.filter(function(x){return x!==id;}):cur.concat([id]);
-    w[i]=nx;state.weeks[mon]=w;
+  document.querySelectorAll("#modalRoot [data-tog]").forEach(function(b){b.onclick=async function(){
+    var id=b.dataset.tog;var w=state.weeks[mon]||{};var cur=(w[i]||[]).map(normEntry);
+    var idx=-1;for(var k=0;k<cur.length;k++){if(cur[k].id===id){idx=k;break;}}
+    if(idx>=0)cur.splice(idx,1);else cur.push({id:id});
+    w[i]=cur;state.weeks[mon]=w;
     try{await api("/api/weeks",{method:"PUT",body:state.weeks});}catch(e){toast("Erro: "+e.message);}
     renderFDay();
   };});
+  document.querySelectorAll("#modalRoot .hin").forEach(function(inp){
+    inp.addEventListener("click",function(e){e.stopPropagation();});
+    inp.addEventListener("change",async function(){
+      var id=inp.dataset.h;var w=state.weeks[mon]||{};var cur=(w[i]||[]).map(normEntry);
+      var ent=cur.find(function(e){return e.id===id;});if(!ent)return;
+      var v=inp.value.trim();var num=Number(v);
+      if(v===""||!isFinite(num)||num<=0||num>=BASE_HOURS){delete ent.h;}else{ent.h=num;}
+      w[i]=cur;state.weeks[mon]=w;
+      try{await api("/api/weeks",{method:"PUT",body:state.weeks});}catch(e){toast("Erro: "+e.message);}
+      renderFDay();
+    });
+  });
 }
 
 function viewFEquipe(){
@@ -705,7 +747,7 @@ function bindFreel(){
     document.getElementById("fw_close").onclick=async function(){
       var totals=fWeekTotals();if(!totals.length){toast("Lance alguém antes de fechar");return;}
       var mon=state.fmonday;var fim=fDayISO(mon,6);var ano=Number(mon.slice(0,4));
-      var rec={id:"wk_"+mon,weekStart:mon,weekEnd:fim,ano:ano,closedAt:new Date().toISOString(),total:totals.reduce(function(s,t){return s+t.valor;},0),items:totals.map(function(t){return {nome:t.f.nome,funcao:t.f.funcao,dias:t.dias,valorDia:totalDia(t.f),valor:t.valor};}),fonte:"semana"};
+      var rec={id:"wk_"+mon,weekStart:mon,weekEnd:fim,ano:ano,closedAt:new Date().toISOString(),total:totals.reduce(function(s,t){return s+t.valor;},0),items:totals.map(function(t){return {nome:t.f.nome,funcao:t.f.funcao,dias:t.dias,valorDia:(t.dias?t.valor/t.dias:0),valor:t.valor};}),fonte:"semana"};
       state.payments=[rec].concat(state.payments.filter(function(p){return p.id!==rec.id;})).sort(function(a,b){return b.weekStart.localeCompare(a.weekStart);});
       try{await api("/api/payments",{method:"PUT",body:state.payments});toast("Semana salva no histórico");}catch(e){toast("Erro: "+e.message);}
     };
@@ -725,12 +767,201 @@ function bindFreel(){
   }
 }
 
+
+/* ===================== COLABORADORES + WRAPPERS + PRENSAGEM ===================== */
+const BASE_HOURS=8;
+function normEntry(e){return typeof e==="string"?{id:e}:e;}
+function entryValor(f,e){e=normEntry(e);var dia=Number(f.diaria)||0;var pas=Number(f.passagem)||0;
+  if(e.h!=null&&e.h!==""&&Number(e.h)>0&&Number(e.h)<BASE_HOURS){return dia*(Number(e.h)/BASE_HOURS)+pas;}
+  return dia+pas;}
+
+function collabOptions(sel){
+  if(!state.collaborators.length)return '<option value="">— cadastre em Gestão › Produtos —</option>';
+  return '<option value="">— selecione —</option>'+state.collaborators.map(function(c){return '<option value="'+esc(c.nome)+'"'+(c.nome===sel?" selected":"")+'>'+esc(c.nome)+'</option>';}).join("");
+}
+function collabChips(){
+  if(!state.collaborators.length)return '<span class="muted" style="font-size:13px">Nenhum colaborador cadastrado ainda.</span>';
+  return state.collaborators.map(function(c){return '<span class="ctag">'+esc(c.nome)+'<button data-crem="'+c.id+'">'+svg("x",14)+'</button></span>';}).join("");
+}
+function bindCollaborators(){
+  var add=document.getElementById("c_addcolab");
+  if(add)add.onclick=async function(){var nm=val("c_newcolab").trim();if(!nm)return;
+    var list=state.collaborators.concat([{id:"c"+Date.now(),nome:nm.toUpperCase()}]);
+    try{await api("/api/collaborators",{method:"PUT",body:list});state.collaborators=list;renderTab();toast("Colaborador adicionado");}catch(e){toast("Erro: "+e.message);}};
+  document.querySelectorAll("[data-crem]").forEach(function(b){b.onclick=async function(){
+    var list=state.collaborators.filter(function(x){return x.id!==b.dataset.crem;});
+    try{await api("/api/collaborators",{method:"PUT",body:list});state.collaborators=list;renderTab();toast("Removido");}catch(e){toast("Erro: "+e.message);}};});
+}
+
+function segNav(items,attr,cur){return '<div class="seg">'+items.map(function(o){return '<button class="segb'+(cur===o[0]?" on":"")+'" '+attr+'="'+o[0]+'">'+o[1]+'</button>';}).join("")+'</div>';}
+function viewProducao(){return '<div class="fu" style="padding-bottom:0">'+segNav([["acab","Acabamento"],["press","Prensagem"]],"data-ptab",state.ptab)+'</div>'+(state.ptab==="acab"?viewRegistrar():viewPress());}
+function viewCalcWrap(){return '<div class="fu" style="padding-bottom:0">'+segNav([["acab","Acabamento"],["press","Prensagem"]],"data-ctab",state.ctab)+'</div>'+(state.ctab==="acab"?viewCalc():viewPressCalc());}
+function viewHistWrap(){return '<div class="fu" style="padding-bottom:0">'+segNav([["acab","Acabamento"],["press","Prensagem"]],"data-htab",state.htab)+'</div>'+(state.htab==="acab"?viewHistorico():viewPressHist());}
+
+/* ---------- PRENSAGEM: lancar ---------- */
+function viewPress(){
+  return '<div class="fu">'+sectionTitle("Lançar prensagem","Controle de tempo de DTF e Sublimação. Sem postos — só o tempo da prensagem.")+
+   '<div class="card">'+
+   '<div class="row">'+field("Data",'<input type="date" id="pp_data" value="'+new Date().toISOString().slice(0,10)+'">')+field("Colaborador",'<select id="pp_colab">'+collabOptions("")+'</select>')+'</div>'+
+   '<div class="row">'+field("Técnica",'<select id="pp_tec"><option value="DTF">DTF</option><option value="SUBLIMACAO">Sublimação</option></select>')+
+     '<div id="pp_pren_wrap">'+field("Prensagem",'<select id="pp_pren"><option value="1">1ª (aplicação)</option><option value="2">2ª (fixação)</option></select>')+'</div>'+'</div>'+
+   '<div class="row">'+field("Peça",'<input id="pp_peca" placeholder="Ex: Camiseta">')+field("Parte da peça",'<input id="pp_parte" placeholder="Ex: Frente, manga…">')+'</div>'+
+   '<div class="row">'+field("Tipo da aplicação",'<input id="pp_tipo" placeholder="Ex: Grande centralizado…">')+field("Peça aberta ou fechada",'<select id="pp_aberta"><option value="Fechada">Fechada</option><option value="Aberta">Aberta</option></select>')+'</div>'+
+   '<div class="row">'+field("Início",'<input type="time" id="pp_inicio">')+field("Fim",'<input type="time" id="pp_fim">')+'</div>'+
+   '<div class="row">'+field("Pausa (min)",'<input type="number" min="0" id="pp_pausa" value="0">')+field("Quantidade (peças)",'<input type="number" min="1" id="pp_qt" placeholder="Ex: 50">')+'</div>'+
+   field("Observação (opcional)",'<input id="pp_obs" placeholder="">')+
+   '<div class="flex gap10 wrap" style="margin:4px 0 16px">'+
+     '<div class="mini"><div class="ml">Tempo trabalhado</div><div class="mv" id="ppv_min">—</div></div>'+
+     '<div class="mini"><div class="ml">Tempo por peça</div><div class="mv" id="ppv_tc">—</div></div>'+
+     '<div class="mini"><div class="ml">Produtividade</div><div class="mv" id="ppv_pr">—</div></div>'+
+   '</div>'+
+   '<button class="btn primary full" id="pp_save" disabled>'+svg("plus",16)+' Salvar prensagem</button>'+
+   '<p class="secsub" id="pp_help" style="text-align:center;margin-top:10px">Técnica, horários e quantidade são obrigatórios.</p>'+
+   '</div></div>';
+}
+function pressForm(){return{data:val("pp_data"),colaborador:val("pp_colab"),tecnica:val("pp_tec"),prensagem:val("pp_tec")==="DTF"?val("pp_pren"):"",peca:val("pp_peca"),parte:val("pp_parte"),tipo:val("pp_tipo"),aberta:val("pp_aberta"),inicio:val("pp_inicio"),fim:val("pp_fim"),pausa:val("pp_pausa"),quantidade:val("pp_qt"),obs:val("pp_obs")};}
+function pressPreview(){
+  var f=pressForm();var m=metricsRec(f);
+  txt("ppv_min",m.minutos>0?m.minutos+" min":"—");
+  txt("ppv_tc",m.tempoCiclo>0?fmt(m.tempoCiclo)+" s/pç":"—");
+  txt("ppv_pr",m.prodHr>0?fmt(m.prodHr)+" pç/h":"—");
+  var ok=f.tecnica&&f.inicio&&f.fim&&Number(f.quantidade)>0&&m.minutos>0;
+  var sv=document.getElementById("pp_save");if(sv)sv.disabled=!ok;
+  var hp=document.getElementById("pp_help");if(hp)hp.style.display=ok?"none":"block";
+}
+function bindPress(){
+  ["pp_data","pp_colab","pp_tec","pp_pren","pp_peca","pp_parte","pp_tipo","pp_aberta","pp_inicio","pp_fim","pp_pausa","pp_qt","pp_obs"].forEach(function(id){var e=document.getElementById(id);if(e){e.addEventListener("input",pressPreview);e.addEventListener("change",pressPreview);}});
+  var tec=document.getElementById("pp_tec");
+  function tog(){document.getElementById("pp_pren_wrap").style.display=tec.value==="DTF"?"":"none";}
+  tec.addEventListener("change",tog);tog();
+  document.getElementById("pp_save").onclick=async function(){
+    var f=pressForm();var m=metricsRec(f);
+    if(!(f.tecnica&&f.inicio&&f.fim&&Number(f.quantidade)>0&&m.minutos>0))return;
+    try{await api("/api/press",{method:"POST",body:f});toast("Prensagem salva");
+      var d=f.data;renderTab();var el=document.getElementById("pp_data");if(el)el.value=d;pressPreview();
+    }catch(e){toast("Erro: "+e.message);}
+  };
+  pressPreview();
+}
+
+/* ---------- PRENSAGEM: calculadora ---------- */
+function pressDistinct(key,tec){var set={};state.pressRecords.forEach(function(r){if(tec&&r.tecnica!==tec)return;var v=(r[key]||"").trim();if(v)set[v]=1;});return Object.keys(set).sort();}
+function viewPressCalc(){
+  var tec=state.pc_tec||"DTF";var pecas=pressDistinct("peca",tec);
+  return '<div class="fu">'+sectionTitle("Calculadora de prensagem","Tempo de aplicação a partir da base. No DTF, soma 1ª + 2ª prensagem.")+
+   '<div class="card" style="margin-bottom:16px">'+
+   '<div class="row">'+field("Técnica",'<select id="pc_tec"><option value="DTF"'+(tec==="DTF"?" selected":"")+'>DTF</option><option value="SUBLIMACAO"'+(tec==="SUBLIMACAO"?" selected":"")+'>Sublimação</option></select>')+
+     field("Peça aberta ou fechada",'<select id="pc_aberta"><option value="todas">Todas</option><option value="Fechada">Fechada</option><option value="Aberta">Aberta</option></select>')+'</div>'+
+   '<div class="row">'+field("Peça",'<select id="pc_peca"><option value="todas">Todas</option>'+pecas.map(function(x){return '<option value="'+esc(x)+'">'+esc(x)+'</option>';}).join("")+'</select>')+
+     field("Quantidade (peças)",'<input type="number" min="0" id="pc_qt" value="100">')+'</div>'+
+   '<div class="row">'+field("Carga horária (h)",'<input type="number" min="0" id="pc_ch" value="8">')+
+     field("Base do tempo",'<div class="flex gap10"><button class="stage on" data-pbase="q3" style="flex:1">Quartil 3</button><button class="stage" data-pbase="media" style="flex:1">Média</button></div>')+'</div>'+
+   '<p class="secsub" id="pc_info" style="margin:0"></p>'+
+   '</div>'+
+   '<div id="pc_warn"></div>'+
+   '<div class="results">'+
+     resCard("clock","Tempo por peça (aplicação)","pc_tpp","pc_tpp_s",true)+
+     resCard("gauge","Tempo total estimado","pc_tot","pc_tot_s",false)+
+   '</div>'+
+   '<div class="card"><div class="lab" style="margin-bottom:12px">Detalhe</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:12px 18px">'+
+     kvRow("1ª prensagem (s/pç)","pc_s1")+kvRow("2ª prensagem (s/pç)","pc_s2")+kvRow("Amostras 1ª","pc_n1")+kvRow("Amostras 2ª","pc_n2")+
+   '</div></div></div>';
+}
+let pressBase="q3";
+function pressCalcRecompute(){
+  if(state.area!=="gestao"||state.gtab!=="calculadora"||state.ctab!=="press")return;
+  var tec=val("pc_tec");var aberta=val("pc_aberta");var peca=val("pc_peca");
+  var qt=Number(val("pc_qt"))||0;
+  function pool(pren){return state.pressRecords.filter(function(r){
+    if(r.tecnica!==tec)return false;
+    if(aberta!=="todas"&&r.aberta!==aberta)return false;
+    if(peca!=="todas"&&r.peca!==peca)return false;
+    if(pren&&String(r.prensagem)!==pren)return false;
+    return true;
+  }).map(function(r){return metricsRec(r).tempoCiclo;}).filter(function(v){return v>0;});}
+  function base(arr){return pressBase==="q3"?quartilInc(arr,0.75):avg(arr);}
+  var s1,s2,n1,n2,segTotal;
+  if(tec==="DTF"){var a1=pool("1"),a2=pool("2");s1=base(a1);s2=base(a2);n1=a1.length;n2=a2.length;segTotal=s1+s2;}
+  else{var a=pool("");s1=base(a);s2=0;n1=a.length;n2=0;segTotal=s1;}
+  var sem=(tec==="DTF")?(n1===0||n2===0):(n1===0);
+  var totalH=(segTotal*qt)/3600;
+  set("pc_info",'Base: <b style="color:var(--text)">'+(pressBase==="q3"?"Quartil 3":"Média")+'</b> · '+(tec==="DTF"?"soma 1ª + 2ª prensagem":"prensagem única"),true);
+  document.getElementById("pc_warn").innerHTML=sem?'<div class="card warn" style="margin-bottom:16px"><span style="color:var(--danger);flex-shrink:0">'+svg("alert",20)+'</span><div style="font-size:13.5px">Faltam registros'+(tec==="DTF"?" de 1ª e/ou 2ª prensagem":"")+' pra essa combinação. Lance prensagens em <b>Produção › Prensagem</b>.</div></div>':"";
+  txt("pc_tpp",sem?"—":fmt(segTotal)+" s/pç");txt("pc_tpp_s",tec==="DTF"?("1ª "+fmt(s1)+" + 2ª "+fmt(s2)+" s"):"prensagem única");
+  txt("pc_tot",sem?"—":fmtH(totalH));txt("pc_tot_s",qt>0?(fmt(qt,0)+" peças · "+fmt(totalH,2)+" h"):"—");
+  txt("pc_s1",n1?fmt(s1)+" s":"—");txt("pc_s2",tec==="DTF"?(n2?fmt(s2)+" s":"—"):"n/a");txt("pc_n1",String(n1));txt("pc_n2",tec==="DTF"?String(n2):"n/a");
+  ["pc_tpp_box","pc_tot_box"].forEach(function(id){var e=document.getElementById(id);if(e)e.style.opacity=sem?0.55:1;});
+}
+function bindPressCalc(){
+  ["pc_tec","pc_aberta","pc_peca","pc_qt","pc_ch"].forEach(function(id){var e=document.getElementById(id);if(e){e.addEventListener("input",pressCalcRecompute);e.addEventListener("change",pressCalcRecompute);}});
+  var t=document.getElementById("pc_tec");if(t)t.addEventListener("change",function(){state.pc_tec=val("pc_tec");renderTab();});
+  document.querySelectorAll(".stage[data-pbase]").forEach(function(b){b.onclick=function(){pressBase=b.dataset.pbase;document.querySelectorAll(".stage[data-pbase]").forEach(function(x){x.classList.toggle("on",x.dataset.pbase===pressBase);});pressCalcRecompute();};});
+  pressCalcRecompute();
+}
+
+/* ---------- PRENSAGEM: historico ---------- */
+function viewPressHist(){
+  var cards=state.pressRecords.length?state.pressRecords.map(pressHistCard).join(""):'<div class="card"><span class="muted">Nenhuma prensagem registrada.</span></div>';
+  return '<div class="flex" style="justify-content:space-between;align-items:flex-end;margin-bottom:14px;gap:10px">'+
+   '<div>'+sectionTitle("Histórico de prensagem",state.pressRecords.length+" registro(s).")+'</div>'+
+   '<button class="btn ghost" id="ph_export" style="padding:10px 14px;white-space:nowrap">'+svg("download",15)+' Exportar</button></div>'+
+   '<div class="flex" style="flex-direction:column;gap:10px">'+cards+'</div>';
+}
+function pressHistCard(r){
+  var m=metricsRec(r);var tag=r.tecnica==="DTF"?("DTF "+(r.prensagem==="2"?"2ª":"1ª")):"Sublimação";
+  return '<div class="histcard"><div class="flex" style="justify-content:space-between;align-items:flex-start;gap:10px">'+
+   '<div><div style="font-family:Oswald,sans-serif;font-size:16px;font-weight:600">'+esc(r.peca||"—")+(r.parte?" · "+esc(r.parte):"")+' <span class="acccolor">· '+r.quantidade+' pç</span></div>'+
+   '<div class="muted" style="font-size:12.5px;margin-top:3px">'+tag+(r.tipo?" · "+esc(r.tipo):"")+(r.aberta?" · "+esc(r.aberta):"")+'</div>'+
+   '<div class="muted" style="font-size:12px;margin-top:2px">'+esc(r.data)+' · '+esc(r.inicio)+'–'+esc(r.fim)+(r.colaborador?" · "+esc(r.colaborador):"")+'</div></div>'+
+   '<div class="flex" style="gap:6px"><button class="iconbtn" data-pedit2="'+r.id+'">'+svg("pencil",16)+'</button><button class="iconbtn" data-pdel2="'+r.id+'">'+svg("trash",16)+'</button></div></div>'+
+   '<div class="flex gap16 wrap" style="margin-top:10px;font-size:12.5px">'+
+   '<span class="muted">Trabalhado <b style="color:var(--text)">'+m.minutos+' min</b></span>'+
+   '<span class="muted">Por peça <b style="color:var(--text)">'+fmt(m.tempoCiclo)+' s</b></span>'+
+   '<span class="muted">Prod. <b style="color:var(--text)">'+fmt(m.prodHr)+' pç/h</b></span></div>'+
+   (r.obs?'<div class="muted" style="font-size:12px;margin-top:8px;font-style:italic">“'+esc(r.obs)+'”</div>':'')+'</div>';
+}
+function bindPressHist(){
+  var ex=document.getElementById("ph_export");if(ex)ex.onclick=exportPressCSV;
+  document.querySelectorAll("[data-pedit2]").forEach(function(b){b.onclick=function(){openEditPress(b.dataset.pedit2);};});
+  document.querySelectorAll("[data-pdel2]").forEach(function(b){b.onclick=async function(){try{await api("/api/press/"+b.dataset.pdel2,{method:"DELETE"});state.pressRecords=state.pressRecords.filter(function(x){return x.id!==b.dataset.pdel2;});renderTab();}catch(e){toast("Erro: "+e.message);}};});
+}
+function exportPressCSV(){
+  var DQ=String.fromCharCode(34);
+  var head=["Data","Colaborador","Tecnica","Prensagem","Peca","Parte","Tipo","Aberta/Fechada","Inicio","Fim","Pausa(min)","Quantidade","Seg por peca","Prod(pc/h)","Obs"];
+  var q=function(v){return DQ+String(v==null?"":v).split(DQ).join(DQ+DQ)+DQ;};
+  var rows=state.pressRecords.map(function(r){var m=metricsRec(r);return [r.data,r.colaborador,r.tecnica,r.prensagem,r.peca,r.parte,r.tipo,r.aberta,r.inicio,r.fim,r.pausa,r.quantidade,m.tempoCiclo.toFixed(2),m.prodHr.toFixed(2),r.obs];});
+  var csv=[head].concat(rows).map(function(r){return r.map(q).join(";");}).join("\r\n");
+  var blob=new Blob(["\ufeff"+csv],{type:"text/csv;charset=utf-8;"});
+  var url=URL.createObjectURL(blob);var a=document.createElement("a");a.href=url;a.download="prensagem_meridian_"+new Date().toISOString().slice(0,10)+".csv";a.click();URL.revokeObjectURL(url);
+}
+function openEditPress(id){
+  var r=state.pressRecords.find(function(x){return x.id===id;});if(!r)return;state.modal="epress";
+  document.getElementById("modalRoot").innerHTML='<div class="overlay" id="ov"><div class="sheet">'+
+   '<div class="sh"><h3>EDITAR PRENSAGEM</h3><button class="xbtn" id="cx">'+svg("x",20)+'</button></div>'+
+   '<div class="row">'+field("Data",'<input type="date" id="ep_data" value="'+esc(r.data)+'">')+field("Colaborador",'<select id="ep_colab">'+collabOptions(r.colaborador)+'</select>')+'</div>'+
+   '<div class="row">'+field("Técnica",'<select id="ep_tec"><option value="DTF"'+(r.tecnica==="DTF"?" selected":"")+'>DTF</option><option value="SUBLIMACAO"'+(r.tecnica==="SUBLIMACAO"?" selected":"")+'>Sublimação</option></select>')+field("Prensagem",'<select id="ep_pren"><option value="1"'+(r.prensagem==="1"?" selected":"")+'>1ª</option><option value="2"'+(r.prensagem==="2"?" selected":"")+'>2ª</option></select>')+'</div>'+
+   '<div class="row">'+field("Peça",'<input id="ep_peca" value="'+esc(r.peca)+'">')+field("Parte",'<input id="ep_parte" value="'+esc(r.parte)+'">')+'</div>'+
+   '<div class="row">'+field("Tipo",'<input id="ep_tipo" value="'+esc(r.tipo)+'">')+field("Aberta/Fechada",'<select id="ep_aberta"><option value="Fechada"'+(r.aberta==="Fechada"?" selected":"")+'>Fechada</option><option value="Aberta"'+(r.aberta==="Aberta"?" selected":"")+'>Aberta</option></select>')+'</div>'+
+   '<div class="row">'+field("Início",'<input type="time" id="ep_inicio" value="'+esc(r.inicio)+'">')+field("Fim",'<input type="time" id="ep_fim" value="'+esc(r.fim)+'">')+'</div>'+
+   '<div class="row">'+field("Pausa (min)",'<input type="number" min="0" id="ep_pausa" value="'+r.pausa+'">')+field("Quantidade",'<input type="number" min="1" id="ep_qt" value="'+r.quantidade+'">')+'</div>'+
+   field("Observação",'<input id="ep_obs" value="'+esc(r.obs)+'">')+
+   '<div class="flex gap10"><button class="btn ghost" id="ep_cancel" style="flex:1">Cancelar</button><button class="btn primary" id="ep_save" style="flex:1">Salvar</button></div>'+
+   '</div></div>';
+  var close=function(){state.modal=null;document.getElementById("modalRoot").innerHTML="";};
+  document.getElementById("cx").onclick=close;document.getElementById("ep_cancel").onclick=close;
+  document.getElementById("ov").onclick=function(e){if(e.target.id==="ov")close();};
+  document.getElementById("ep_save").onclick=async function(){
+    var body={data:val("ep_data"),colaborador:val("ep_colab"),tecnica:val("ep_tec"),prensagem:val("ep_tec")==="DTF"?val("ep_pren"):"",peca:val("ep_peca"),parte:val("ep_parte"),tipo:val("ep_tipo"),aberta:val("ep_aberta"),inicio:val("ep_inicio"),fim:val("ep_fim"),pausa:val("ep_pausa"),quantidade:val("ep_qt"),obs:val("ep_obs")};
+    try{await api("/api/press/"+id,{method:"PUT",body:body});state.pressRecords=await api("/api/press");close();renderTab();toast("Prensagem atualizada");}catch(e){toast("Erro: "+e.message);}
+  };
+}
+
 /* ===================== BOOT ===================== */
 async function boot(){
   state.theme=document.documentElement.getAttribute("data-theme")||"dark";
   state.fmonday=fMondayISO(new Date());
   renderHeader();renderTabbar();
-  await loadProducts();
+  await loadProducts();await loadCollaborators();
   if(state.pin){try{const r=await api("/api/verify-pin",{method:"POST",body:{pin:state.pin}});if(r.ok){state.unlocked=true;await loadRecords();await loadGestao();}else{state.pin=null;sessionStorage.removeItem("mpin");}}catch(e){}}
   renderHeader();renderTabbar();renderTab();
   syncTimer=setInterval(poll,4000);
